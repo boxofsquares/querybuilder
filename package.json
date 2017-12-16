@@ -1,0 +1,27 @@
+{
+  "name": "querybuilder",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/boxofsquares/querybuilder.git"
+  },
+  "keywords": [
+    "["
+  ],
+  "author": "Janik Andreas",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/boxofsquares/querybuilder/issues"
+  },
+  "homepage": "https://github.com/boxofsquares/querybuilder#readme",
+  "dependencies": {
+    "commander": "^2.12.2",
+    "request": "^2.83.0",
+    "request-promise-native": "^1.0.5"
+  }
+}
