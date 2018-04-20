@@ -1,0 +1,27 @@
+NOTES:
+
+threshold: 0.7
+epsilon: 0.05
+
+streets gives a comprehensive set -> mostly fractured into single headers
+libraries -> demonstrates that it can sort into shared columns 
+
+parks -> nice match on park_name, facility_id (surrey) and Location
+  also returns 0.25 score
+
+bikes -> consistently groups headers with very similar headers together
+
+water -> only works for this narrow threshold, otherwise runs out of memory, groups Valves, NodeNo and Types togehter
+
+threshold: 0.6  
+epsilon: 0.1
+
+school -> groups weblinks togehter, as well as all contractors
+
+
+Surrey DAta: 
+Highly organised data
+structurally and availability
+
+Vancouver Data:
+very informal, differing data types with structural difference between sets (kml)

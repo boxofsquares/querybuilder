@@ -1,0 +1,22 @@
+*** People, Computers, and The Hot Mess of Real Data
+
+Computing is FREE
+Storage is FREE
+Data is ABUNDANT
+
+PEOPLE are the remaining BOTTLENECK
+
+---
+
+Analyitic Lifecycle
+
+Acquisition -> Transformation -> Analysis -> Visualization -> Decide/Deploy
+these step are not clean/cut
+cycling between stages very common
+not linear, very interrelated
+
+Wrangler, Kafka
+
+Ground - Berkeley
+
+

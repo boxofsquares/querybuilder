@@ -20,8 +20,16 @@
   },
   "homepage": "https://github.com/boxofsquares/querybuilder#readme",
   "dependencies": {
+    "adm-zip": "^0.4.7",
+    "cheerio": "^1.0.0-rc.2",
     "commander": "^2.12.2",
+    "csv": "^2.0.0",
+    "fs-extra": "^5.0.0",
+    "inquirer": "^4.0.1",
     "request": "^2.83.0",
-    "request-promise-native": "^1.0.5"
+    "request-promise-native": "^1.0.5",
+    "string-jaccardindex": "^0.1.5",
+    "unzip": "^0.1.11",
+    "xml2js": "^0.4.19"
   }
 }
