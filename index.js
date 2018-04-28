@@ -224,8 +224,16 @@ program
         // var max = totalScores.returnduce((acc, score) => { return acc > score ? acc : score }, 0 );
         console.log("****BEST MATCH**** ");
         console.log("Score: " + totalScores[bestSchemaIndex]);
+        var schemaHeaderSum = schemaObjects.reduce( (acc, so) => { return acc += so.schema.length }, 0)
         fs.writeFile('mediated/' + tag + '.json', 
-          JSON.stringify({ tag: tag, numberOfSets: schemaObjects.length, clusterCount: allClusters[bestSchemaIndex].length, clusters: allClusters[bestSchemaIndex], score: totalScores[bestSchemaIndex]}, 
+          JSON.stringify({ 
+            tag: tag, 
+            numberOfSets: schemaObjects.length, 
+            schemaHeaderSum: schemaHeaderSum,
+            averageSchemaSize: schemaHeaderSum / schemaObjects.length,
+            clusterCount: allClusters[bestSchemaIndex].length,
+            score: totalScores[bestSchemaIndex], 
+            clusters: allClusters[bestSchemaIndex]}, 
             null, 
             '\t'
           )

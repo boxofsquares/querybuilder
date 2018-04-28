@@ -45,7 +45,7 @@ function parseSource(tag, filePath, source) {
       break;
     case ".csv":
       return new Promise( (success,fail) => {
-        readStream = fs.createReadStream(filePath);
+        var readStream = fs.createReadStream(filePath);
         readStream
           .on('error', (err) => {console.log(err)})
           .on('open', () => {

@@ -11,6 +11,34 @@ const FORMATS = ["json", "csv", "kml"] // those are the only useful formats, rea
 let responseString = '';
 const offline = false;
 
+// All registered sources
+const RegisteredSources = [
+	{name: "Vancouer", fetchResourceHandler: (st) => { return vancouverGetData(st) }}, 
+	{name: "Surrey", fetchResourceHandler: (st) => { return surreyGetData(st)}} 
+]
+
+// Surrey API Fetch
+const surreyGetData = (searchTag) => {
+	return (
+		findResources(searchTag)
+		.then( (response) => {
+			// resCount = response.body.result.count;
+			resources = response.body.result.results.map( (resource) => {
+				formats = resource.resources.map( (resource) => {
+					return { format: resource.format.toLowerCase(), url: resource.url }
+				})
+				return { tag: resource.name.toLowerCase(), formats, src: "surrey" }
+			})
+			return resources;
+		})
+	)
+}
+
+// Vancouver Web Crawl
+const vancouverGetData = (searchTag) => {
+	return cov.getCovSourcesByTag(searchTag)
+}
+
 const requestPromise = (req) => {
 	return request({uri: req, 
 			json: true,
@@ -94,25 +122,26 @@ const handleResponseList = (responses) => {
 
 const getData = (searchTag) => {
 	return (
-		findResources(searchTag)
-		.then( (response) => {
-			// resCount = response.body.result.count;
-			resources = response.body.result.results.map( (resource) => {
-				formats = resource.resources.map( (resource) => {
-					return { format: resource.format.toLowerCase(), url: resource.url }
-				})
-				return { tag: resource.name.toLowerCase(), formats, src: "surrey" }
-			})
-			return { resCount: resources.length, resources: resources }
-		})
-		.then( (result) => {
-			return cov.getCovSourcesByTag(searchTag)
-				.then( (newResults) => {
-					result.resCount += newResults.length;
-					result.resources = result.resources.concat(newResults);
-					return result;
-				})
-		})
+		// findResources(searchTag)
+		// .then( (response) => {
+		// 	// resCount = response.body.result.count;
+		// 	resources = response.body.result.results.map( (resource) => {
+		// 		formats = resource.resources.map( (resource) => {
+		// 			return { format: resource.format.toLowerCase(), url: resource.url }
+		// 		})
+		// 		return { tag: resource.name.toLowerCase(), formats, src: "surrey" }
+		// 	})
+		// 	return { resCount: resources.length, resources: resources }
+		// })
+		// .then( (result) => {
+		// 	return cov.getCovSourcesByTag(searchTag)
+		// 		.then( (newResults) => {
+		// 			result.resCount += newResults.length;
+		// 			result.resources = result.resources.concat(newResults);
+		// 			return result;
+		// 		})
+		// })
+		fetchSources(searchTag)
 		.then( ( result ) => {
 			console.log(result)
 			i = -1
@@ -222,6 +251,19 @@ const findResources = (searchTag) => {
 	return requestPromise("http://data.surrey.ca/api/3/action/package_search?q=" + searchTag);
 }
 
+const fetchSources = (searchTag) => {
+	var s = RegisteredSources.map( (source) => {
+	 return source.fetchResourceHandler(searchTag);
+	})
+	return Promise.all(s).then((accSources) => { 
+		return accSources.reduce((acc, setsForSource) => {
+			acc.resCount += setsForSource.length;
+			acc.resources = acc.resources.concat(setsForSource)
+			return acc
+		}, { resCount: 0, resources: [] }) 
+	})
+}
+
 const listResources = (term) => {
 	if (offline) {
 		return [dummyPromise, dummyPromise];
@@ -270,8 +312,8 @@ const dummyPromise = new Promise((success, fail) => {
 })
 
 module.exports = {
-	getResource , 
-	listResources , 
+	getResource, 
+	listResources, 
 	handleResponseList , 
 	handleError,
 	getCSVData,
