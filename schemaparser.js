@@ -55,9 +55,6 @@ function parseSource(tag, filePath, source) {
                 })
               )
           })
-          // .on('close', () => {
-          //   fs.remove('./tmp.csv');
-          // });
         })
         .then( (records) => {
           return { name: tag, schema: records[0], filePath: filePath};
@@ -66,7 +63,7 @@ function parseSource(tag, filePath, source) {
 
         break;
       case ".kmz":
-        //ignore for now
+        //ignore files that are zipped
       break;
     default:
       console.log("Cannot recognize extension: " + extension + ". Skipping " + filePath);

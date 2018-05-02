@@ -20,7 +20,7 @@ const RegisteredSources = [
 // Surrey API Fetch
 const surreyGetData = (searchTag) => {
 	return (
-		findResources(searchTag)
+		requestPromise("http://data.surrey.ca/api/3/action/package_search?q=" + searchTag)
 		.then( (response) => {
 			// resCount = response.body.result.count;
 			resources = response.body.result.results.map( (resource) => {
@@ -64,14 +64,15 @@ const handleError = (error) => {
 				return console.log("Invalid request with error: " + error);
 			};
 
-const getResource = (resourceId) => {
-	if (offline) {
-		return dummyPromise;
-	}	
-	else {
-		return requestPromise("http://data.surrey.ca/api/3/action/package_show?id=" + resourceId);
-	}
-}
+// Testing (offline)
+// const getResource = (resourceId) => {
+// 	if (offline) {
+// 		return dummyPromise;
+// 	}	
+// 	else {
+// 		return requestPromise("http://data.surrey.ca/api/3/action/package_show?id=" + resourceId);
+// 	}
+// }
 
 const handleResponseList = (responses) => {
 		//console.log(body);
@@ -96,51 +97,8 @@ const handleResponseList = (responses) => {
 		});	
 	};
 
-	const getCSVData = (resourceId) => {
-		return (
-			getResource(resourceId)
-			.then( (response) => {
-				if(offline) {
-					return fs.createReadStream(response.body.result.results[0].url);
-				}
-				else {
-					return new Promise( (success, fail) => {
-						simple_request
-						.get(response.body.result.resources[0].url)
-						.pipe(fs.createWriteStream('./tmp.csv'))
-						.on('close', () => {
-							success(fs.createReadStream('./tmp.csv'));
-						});
-					});
-				}
-			})
-			.catch( (error) => {
-				console.log(error);
-			})
-			);
-	};
-
 const getData = (searchTag) => {
 	return (
-		// findResources(searchTag)
-		// .then( (response) => {
-		// 	// resCount = response.body.result.count;
-		// 	resources = response.body.result.results.map( (resource) => {
-		// 		formats = resource.resources.map( (resource) => {
-		// 			return { format: resource.format.toLowerCase(), url: resource.url }
-		// 		})
-		// 		return { tag: resource.name.toLowerCase(), formats, src: "surrey" }
-		// 	})
-		// 	return { resCount: resources.length, resources: resources }
-		// })
-		// .then( (result) => {
-		// 	return cov.getCovSourcesByTag(searchTag)
-		// 		.then( (newResults) => {
-		// 			result.resCount += newResults.length;
-		// 			result.resources = result.resources.concat(newResults);
-		// 			return result;
-		// 		})
-		// })
 		fetchSources(searchTag)
 		.then( ( result ) => {
 			console.log(result)
@@ -153,13 +111,12 @@ const getData = (searchTag) => {
 					}
 				}
 			}).filter((rp) => { return rp != undefined});
-			// console.log(reqPromises)
 			var promises = reqPromises.map((reqPromise) => {
 				return new Promise ( (success, fail) => {
 					var extractDir = __dirname + "/extract/" + reqPromise.src;
 					var rx = /(.zip|.kmz)$/
 					if (!fs.existsSync(extractDir)) {
-								fs.mkdir(extractDir)
+						fs.mkdir(extractDir)
 					}
 					if (rx.test(reqPromise.req)) { 
 						// console.log("zipped from " + reqPromise.req)
@@ -168,7 +125,6 @@ const getData = (searchTag) => {
 						.on('error', (err) => {success(reqPromise)})
 						// .pipe(unzip.Extract({ path: "./extract/" + reqPromise.src }))
 						.pipe(unzip.Parse())
-								// .pipe(fs.createWriteStream("./" + reqPromise.tag + "." + reqPromise.format))
 						.on('entry', (entry) => {
 							var zippedFileName = entry.path;
 							entry.pipe(fs.createWriteStream(extractDir + "/" + zippedFileName))
@@ -177,7 +133,6 @@ const getData = (searchTag) => {
 								success(reqPromise);
 							})
 							.on('error', (err) => {
-								// console.log(err);
 								success(reqPromise)
 							})	
 						})
@@ -196,25 +151,8 @@ const getData = (searchTag) => {
 				})
 			})
 			return Promise.all(promises)
-			// .then( (responses) => {
-			// 	for (i = 0; i < reqPromises.length; i++) {
-			// 		reqPromises[i].resPath = responses[i]; 
-			// 	}
-			// 	debugger;
-			// 	return reqPromises;
-			// })
 		})
 		.then( (resources) => {
-			// var dirnames = fs.readdirSync(__dirname + "/extract");
-			// for (dirName of dirnames) {
-			// 	schemaPromises.append(
-			// 		fs.readdirSync(__dirname + "/extract/" + dirName).map( (fileName) => {
-			// 			if (fs.lstatSync(__dirname + "/extract/" + dirName + "/" + fileName).isFile()) {
-			// 					return schemaParser.parseSource(__dirname + "/extract/" + dirName + "/" + fileName, )
-			// 				// return { obj: require("./extract/" + fPath), path: fPath };
-			// 			}
-			// 		})
-			// 	)
 			var schemaPromises = resources.map( (resource) => {
 				if (resource.localFile) {
 					return schemaParser.parseSource(resource.tag, resource.localFile, resource.src);
@@ -223,32 +161,7 @@ const getData = (searchTag) => {
 			})
 			return Promise.all(schemaPromises);
 		})
-		// .then( resObjs => {
-		// 	var sObjects = resObjs.map( o => {
-		// 		var obj = Array.isArray(o.obj) ? o.obj[0] : o.obj;
-		// 		// if (Array.isArray(obj)) {
-		// 		// 	console.log(obj[0].name + " | " + obj[0].type + "\n")
-		// 		// 	testObj = 
-		// 		// } else {
-		// 		// 	console.log(obj.name + " | " + obj.type + "\n")
-		// 		// }
-		// 		return schemaObj = { name: obj.name, schema: Object.keys(obj.features[0].properties), filePath: o.path };
-		// 	});
-		// 	return sObjects;
-		// })
-				// .then( (reqPromises) => {
-				// 	debugger;
-				// 	reqPromises.forEach( (reqPromise) => {
-				// 		wstream = fs.createWriteStream("./" + reqPromise.tag + "." + reqPromise.format)
-				// 		wstream.write(reqPromise.res)
-				// 		wstream.end()
-				// 	})
-				// })
-		)
-}
-
-const findResources = (searchTag) => {
-	return requestPromise("http://data.surrey.ca/api/3/action/package_search?q=" + searchTag);
+	)
 }
 
 const fetchSources = (searchTag) => {
@@ -286,6 +199,7 @@ const listResources = (term) => {
 	return promises;
 }
 
+// Offline Testing
 const dummyPromise = new Promise((success, fail) => {
 	let dummyResponse = JSON.parse(
 		'{' +
@@ -312,10 +226,5 @@ const dummyPromise = new Promise((success, fail) => {
 })
 
 module.exports = {
-	getResource, 
-	listResources, 
-	handleResponseList , 
-	handleError,
-	getCSVData,
 	getData
 };

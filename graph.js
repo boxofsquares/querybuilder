@@ -1,10 +1,4 @@
 
-// class Edge {
-//   constructor(target, weight) {
-//     this.target = target;
-//     this.weight = weight;
-//   }
-// }
 'use strict'
 const jaccard = require('string-jaccardindex');
 
@@ -66,23 +60,6 @@ class jGraph {
     return deleteFrom || deleteTo;
   }
 
-  // _removeEdge(from, to) {
-  //   var deleteFrom = this._edges.get(from).delete(to); 
-  //   var deleteTo = this._edges.get(to).delete(from);
-  //   return deleteFrom || deleteTo;
-  // }
-
-  // revisit if needed
-  // findEdges(source) {
-  //   var edges = [];
-  //   debugger;
-  //   for (var [key, value] of this.edges.get(source)) {
-  //       edges.push([key, value]);
-  //       debugger;
-  //   }  
-  //   return edges;
-  // }
-
   findCertainPath(src, target, currentPath) {
     if (this.edges.get(src).get(target) == undefined) { return false;} // this means this path was already removed earlier
     if (this.edges.get(src).get(target) > this.threshold + this.epsilon) {
@@ -112,8 +89,6 @@ class jGraph {
       } else {
         newUncertainEdges.push(unCertainEdge)
       }
-      // e(a1,a2) can be replaced with one another uncertain edges + only certain edges
-      // TODO
     }
    this.uncertainEdges = newUncertainEdges;
   }
@@ -163,6 +138,7 @@ class jGraph {
     cluster.push(key);
     return cluster;
   }
+
   //https://stackoverflow.com/questions/127704/algorithm-to-return-all-combinations-of-k-elements-from-n/8171776#8171776
   _findSubsets(rest) {
     if (rest.length == 0) {
@@ -181,18 +157,6 @@ class jGraph {
     return case1 || case2;
   }
 
-  // _cloneGraph() {
-  //   var clone = new Map();
-  //   for (var [key1,value1] of this.edges) {
-  //     var clone2 = new Map();
-  //     for (var [key2,value2] of value1) {
-  //       clone2.set(key2,value2);
-  //     }
-  //     clone.set(key1, clone2);
-  //   }
-  //   this._edges = clone;
-  // }
-
   printGraph() {
     for (var [key, value] of this.edges) {
       console.log(key + ":")
@@ -204,6 +168,7 @@ class jGraph {
   }
 }
 
+// Testing Code Snippet
 // var g = new jGraph();
 // debugger;
 // g.addEdge('a', 'b', 0.5);
